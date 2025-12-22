@@ -7,7 +7,9 @@ import { auth } from "@/auth";
 import { client } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function CreateNewTask(values: z.infer<typeof PipelineSchema>) {
+export async function CreateNewPipeline(
+  values: z.infer<typeof PipelineSchema>,
+) {
   const validatedFields = PipelineSchema.safeParse(values);
 
   if (!validatedFields.success) {
@@ -21,11 +23,11 @@ export async function CreateNewTask(values: z.infer<typeof PipelineSchema>) {
     const session = await auth();
     const res = await client.query(
       /* sql */ `
-    INSERT INTO public.tasks (title, owner)
+    INSERT INTO public.pipelines (title, owner)
     VALUES ($1, $2)
     RETURNING id
   `,
-      [title, session?.user.id]
+      [title, session?.user.id],
     );
 
     const id = res.rows[0].id;

@@ -4,18 +4,21 @@ import Image from "next/image";
 import { User } from "next-auth";
 import { UserRole } from "@/next-auth";
 import { retrieveUserData } from "@/actions/retrieve-user-data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function UserDropdownInfo() {
   const [session, useSession] = useState<
     (User & { role: UserRole }) | undefined
   >();
-  if (session === null || session === undefined) {
-    retrieveUserData().then((session) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useSession(session);
-    });
-  }
+
+  useEffect(() => {
+    if (session === null || session === undefined) {
+      retrieveUserData().then((session) => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useSession(session);
+      });
+    }
+  }, []);
 
   return (
     <div className="flex flex-col">

@@ -25,7 +25,7 @@ function ListItem({ task }: ListItemProps) {
   };
 
   return (
-    <tr className="border-t border-t-neutral-200! text-neutral-700 text-xs">
+    <tr className="border-t border-t-neutral-200! text-xs text-neutral-700">
       <td className="font-normal!">{task.title}</td>
       <td>{task.description}</td>
       <td>
@@ -37,7 +37,7 @@ function ListItem({ task }: ListItemProps) {
                 ? "default"
                 : "secondary"
           }
-          className="px-1.5 rounded-sm h-5 text-[11px] capitalize pointer-events-none"
+          className="pointer-events-none h-5 rounded-sm px-1.5 text-[11px] capitalize"
         >
           {task.priority}
         </Badge>
@@ -72,15 +72,15 @@ export default function ListView() {
 
   if (isLoading)
     return (
-      <div className="flex items-center gap-1 font-bold text-xl">
+      <div className="flex items-center gap-1 text-xl font-bold">
         <span>Loading...</span>
       </div>
     );
 
   return (
     <div className="overflow-x-auto">
-      <table className="table table-sm border-collapse! rounded-md overflow-hidden">
-        <thead className="bg-muted/50 text-md text-neutral-800">
+      <table className="table border-collapse! overflow-hidden rounded-md table-sm">
+        <thead className="text-md bg-muted/50 text-neutral-800">
           <tr>
             <th>
               <div className="flex items-center gap-1">
