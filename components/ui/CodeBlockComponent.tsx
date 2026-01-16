@@ -4,9 +4,12 @@ import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
 
 export default ({
   node: {
+    // @ts-ignore
     attrs: { language: defaultLanguage },
   },
+  // @ts-ignore
   updateAttributes,
+  // @ts-ignore
   extension,
 }) => (
   <NodeViewWrapper className="code-block">
@@ -17,6 +20,7 @@ export default ({
     >
       <option value="null">auto</option>
       <option disabled>—</option>
+      {/* @ts-ignore */}
       {extension.options.lowlight.listLanguages().map((lang, index) => (
         <option key={index} value={lang}>
           {lang}
@@ -24,6 +28,7 @@ export default ({
       ))}
     </select>
     <pre>
+      {/* @ts-ignore */}
       <NodeViewContent as="code" />
     </pre>
   </NodeViewWrapper>
