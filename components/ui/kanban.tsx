@@ -171,7 +171,7 @@ interface KanbanContextValue<T> {
 }
 
 const KanbanContext = React.createContext<KanbanContextValue<unknown> | null>(
-  null
+  null,
 );
 
 function useKanbanContext(consumerName: string) {
@@ -195,7 +195,7 @@ type KanbanProps<T> = Omit<DndContextProps, "collisionDetection"> &
     value: Record<UniqueIdentifier, T[]>;
     onValueChange?: (columns: Record<UniqueIdentifier, T[]>) => void;
     onMove?: (
-      event: DragEndEvent & { activeIndex: number; overIndex: number }
+      event: DragEndEvent & { activeIndex: number; overIndex: number },
     ) => void;
     strategy?: SortableContextProps["strategy"];
     orientation?: "horizontal" | "vertical";
@@ -221,25 +221,34 @@ function Kanban<T>(props: KanbanProps<T>) {
   const lastOverIdRef = React.useRef<UniqueIdentifier | null>(null);
   const hasMovedRef = React.useRef(false);
   const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor),
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 10, // Require 10px movement before drag starts
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter,
-    })
+    }),
   );
 
   const getItemValue = React.useCallback(
     (item: T): UniqueIdentifier => {
       if (typeof item === "object" && !getItemValueProp) {
         throw new Error(
-          "`getItemValue` is required when using array of objects"
+          "`getItemValue` is required when using array of objects",
         );
       }
       return getItemValueProp
         ? getItemValueProp(item)
         : (item as UniqueIdentifier);
     },
-    [getItemValueProp]
+    [getItemValueProp],
   );
 
   const getColumn = React.useCallback(
@@ -254,7 +263,7 @@ function Kanban<T>(props: KanbanProps<T>) {
 
       return null;
     },
-    [value, getItemValue]
+    [value, getItemValue],
   );
 
   const collisionDetection: CollisionDetection = React.useCallback(
@@ -263,7 +272,7 @@ function Kanban<T>(props: KanbanProps<T>) {
         return closestCenter({
           ...args,
           droppableContainers: args.droppableContainers.filter(
-            (container) => container.id in value
+            (container) => container.id in value,
           ),
         });
       }
@@ -291,8 +300,8 @@ function Kanban<T>(props: KanbanProps<T>) {
               (container) =>
                 container.id !== overId &&
                 containerItems.some(
-                  (item) => getItemValue(item) === container.id
-                )
+                  (item) => getItemValue(item) === container.id,
+                ),
             ),
           });
 
@@ -305,7 +314,7 @@ function Kanban<T>(props: KanbanProps<T>) {
       lastOverIdRef.current = overId;
       return [{ id: overId }];
     },
-    [activeId, value, getItemValue]
+    [activeId, value, getItemValue],
   );
 
   const onDragStart = React.useCallback(
@@ -315,7 +324,7 @@ function Kanban<T>(props: KanbanProps<T>) {
       if (event.activatorEvent.defaultPrevented) return;
       setActiveId(event.active.id);
     },
-    [kanbanProps.onDragStart]
+    [kanbanProps.onDragStart],
   );
 
   const onDragOver = React.useCallback(
@@ -337,10 +346,10 @@ function Kanban<T>(props: KanbanProps<T>) {
         if (!items) return;
 
         const activeIndex = items.findIndex(
-          (item) => getItemValue(item) === active.id
+          (item) => getItemValue(item) === active.id,
         );
         const overIndex = items.findIndex(
-          (item) => getItemValue(item) === over.id
+          (item) => getItemValue(item) === over.id,
         );
 
         if (activeIndex !== overIndex) {
@@ -355,7 +364,7 @@ function Kanban<T>(props: KanbanProps<T>) {
         if (!activeItems || !overItems) return;
 
         const activeIndex = activeItems.findIndex(
-          (item) => getItemValue(item) === active.id
+          (item) => getItemValue(item) === active.id,
         );
 
         if (activeIndex === -1) return;
@@ -366,7 +375,7 @@ function Kanban<T>(props: KanbanProps<T>) {
         const updatedItems = {
           ...value,
           [activeColumn]: activeItems.filter(
-            (item) => getItemValue(item) !== active.id
+            (item) => getItemValue(item) !== active.id,
           ),
           [overColumn]: [...overItems, activeItem],
         };
@@ -375,7 +384,7 @@ function Kanban<T>(props: KanbanProps<T>) {
         hasMovedRef.current = true;
       }
     },
-    [value, getColumn, getItemValue, onValueChange, kanbanProps.onDragOver]
+    [value, getColumn, getItemValue, onValueChange, kanbanProps.onDragOver],
   );
 
   const onDragEnd = React.useCallback(
@@ -430,10 +439,10 @@ function Kanban<T>(props: KanbanProps<T>) {
           }
 
           const activeIndex = items.findIndex(
-            (item) => getItemValue(item) === active.id
+            (item) => getItemValue(item) === active.id,
           );
           const overIndex = items.findIndex(
-            (item) => getItemValue(item) === over.id
+            (item) => getItemValue(item) === over.id,
           );
 
           if (activeIndex !== overIndex) {
@@ -462,7 +471,7 @@ function Kanban<T>(props: KanbanProps<T>) {
       onValueChange,
       onMove,
       kanbanProps.onDragEnd,
-    ]
+    ],
   );
 
   const onDragCancel = React.useCallback(
@@ -474,7 +483,7 @@ function Kanban<T>(props: KanbanProps<T>) {
       setActiveId(null);
       hasMovedRef.current = false;
     },
-    [kanbanProps.onDragCancel]
+    [kanbanProps.onDragCancel],
   );
 
   const announcements: Announcements = React.useMemo(
@@ -489,7 +498,7 @@ function Kanban<T>(props: KanbanProps<T>) {
               if (!column || !value[column]) return 1;
               return (
                 value[column].findIndex(
-                  (item) => getItemValue(item) === active.id
+                  (item) => getItemValue(item) === active.id,
                 ) + 1
               );
             })();
@@ -497,7 +506,7 @@ function Kanban<T>(props: KanbanProps<T>) {
           ? Object.keys(value).length
           : (() => {
               const column = getColumn(active.id);
-              return column ? value[column]?.length ?? 0 : 0;
+              return column ? (value[column]?.length ?? 0) : 0;
             })();
 
         return `Picked up ${itemType} at position ${position} of ${total}`;
@@ -514,7 +523,7 @@ function Kanban<T>(props: KanbanProps<T>) {
               if (!column || !value[column]) return 1;
               return (
                 value[column].findIndex(
-                  (item) => getItemValue(item) === over.id
+                  (item) => getItemValue(item) === over.id,
                 ) + 1
               );
             })();
@@ -522,7 +531,7 @@ function Kanban<T>(props: KanbanProps<T>) {
           ? Object.keys(value).length
           : (() => {
               const column = getColumn(over.id);
-              return column ? value[column]?.length ?? 0 : 0;
+              return column ? (value[column]?.length ?? 0) : 0;
             })();
 
         const overColumn = getColumn(over.id);
@@ -550,7 +559,7 @@ function Kanban<T>(props: KanbanProps<T>) {
               if (!column || !value[column]) return 1;
               return (
                 value[column].findIndex(
-                  (item) => getItemValue(item) === over.id
+                  (item) => getItemValue(item) === over.id,
                 ) + 1
               );
             })();
@@ -558,7 +567,7 @@ function Kanban<T>(props: KanbanProps<T>) {
           ? Object.keys(value).length
           : (() => {
               const column = getColumn(over.id);
-              return column ? value[column]?.length ?? 0 : 0;
+              return column ? (value[column]?.length ?? 0) : 0;
             })();
 
         const overColumn = getColumn(over.id);
@@ -580,7 +589,7 @@ function Kanban<T>(props: KanbanProps<T>) {
         return `Dragging was cancelled. ${itemType} was dropped.`;
       },
     }),
-    [value, getColumn, getItemValue]
+    [value, getColumn, getItemValue],
   );
 
   const contextValue = React.useMemo<KanbanContextValue<T>>(
@@ -604,7 +613,7 @@ function Kanban<T>(props: KanbanProps<T>) {
       orientation,
       getItemValue,
       flatCursor,
-    ]
+    ],
   );
 
   return (
@@ -677,7 +686,7 @@ function KanbanBoard(props: KanbanBoardProps) {
           className={cn(
             "flex gap-4 size-full",
             context.orientation === "horizontal" ? "flex-row" : "flex-col",
-            className
+            className,
           )}
         />
       </SortableContext>
@@ -701,7 +710,7 @@ function useKanbanColumnContext(consumerName: string) {
   const context = React.useContext(KanbanColumnContext);
   if (!context) {
     throw new Error(
-      `\`${consumerName}\` must be used within \`${COLUMN_NAME}\``
+      `\`${consumerName}\` must be used within \`${COLUMN_NAME}\``,
     );
   }
   return context;
@@ -737,7 +746,7 @@ function KanbanColumn(props: KanbanColumnProps) {
 
   if (!inBoard && !inOverlay) {
     throw new Error(
-      `\`${COLUMN_NAME}\` must be used within \`${BOARD_NAME}\` or \`${OVERLAY_NAME}\``
+      `\`${COLUMN_NAME}\` must be used within \`${BOARD_NAME}\` or \`${OVERLAY_NAME}\``,
     );
   }
 
@@ -786,7 +795,7 @@ function KanbanColumn(props: KanbanColumnProps) {
       isDragging,
       disabled,
     }),
-    [id, attributes, listeners, setActivatorNodeRef, isDragging, disabled]
+    [id, attributes, listeners, setActivatorNodeRef, isDragging, disabled],
   );
 
   const ColumnPrimitive = asChild ? Slot : "div";
@@ -821,7 +830,7 @@ function KanbanColumn(props: KanbanColumnProps) {
               "opacity-50 ": isDragging,
               "pointer-events-none opacity-50": disabled,
             },
-            className
+            className,
           )}
         />
       </SortableContext>
@@ -864,7 +873,7 @@ function KanbanColumnHandle(props: KanbanColumnHandleProps) {
         context.flatCursor
           ? "cursor-default"
           : "cursor-grab data-dragging:cursor-grabbing",
-        className
+        className,
       )}
       disabled={isDisabled}
     />
@@ -881,7 +890,7 @@ interface KanbanItemContextValue {
 }
 
 const KanbanItemContext = React.createContext<KanbanItemContextValue | null>(
-  null
+  null,
 );
 
 function useKanbanItemContext(consumerName: string) {
@@ -956,7 +965,7 @@ function KanbanItem(props: KanbanItemProps) {
       isDragging,
       disabled,
     }),
-    [id, attributes, listeners, setActivatorNodeRef, isDragging, disabled]
+    [id, attributes, listeners, setActivatorNodeRef, isDragging, disabled],
   );
 
   const ItemPrimitive = asChild ? Slot : "div";
@@ -983,7 +992,7 @@ function KanbanItem(props: KanbanItemProps) {
             "opacity-50": isDragging,
             "pointer-events-none opacity-50": disabled,
           },
-          className
+          className,
         )}
       />
     </KanbanItemContext.Provider>
@@ -1025,7 +1034,7 @@ function KanbanItemHandle(props: KanbanItemHandleProps) {
         context.flatCursor
           ? "cursor-default"
           : "cursor-grab data-dragging:cursor-grabbing",
-        className
+        className,
       )}
       disabled={isDisabled}
     />
@@ -1090,7 +1099,7 @@ function KanbanOverlay(props: KanbanOverlayProps) {
           : null}
       </KanbanOverlayContext.Provider>
     </DragOverlay>,
-    container
+    container,
   );
 }
 

@@ -5,7 +5,7 @@ import * as z from "zod";
 import { TaskSchema } from "@/schemas";
 import { auth } from "@/auth";
 import { client } from "@/lib/db";
-import { revalidatePath } from "next/cache";
+import { refresh, revalidatePath } from "next/cache";
 
 export async function CreateNewTask(values: z.infer<typeof TaskSchema>) {
   const validatedFields = TaskSchema.safeParse(values);
@@ -15,15 +15,22 @@ export async function CreateNewTask(values: z.infer<typeof TaskSchema>) {
     return { error: "Invalid Fields!" };
   }
 
-  const { title, description, status, priority, category, dueDate } =
-    validatedFields.data;
+  const {
+    title,
+    description,
+    status,
+    priority,
+    category,
+    dueDate,
+    pipelineId,
+  } = validatedFields.data;
 
   try {
     const session = await auth();
     const res = await client.query(
       /* sql */ `
-    INSERT INTO public.tasks (title, description, status, priority, category, "creationDate", "dueDate", owner)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    INSERT INTO public.tasks (title, description, status, priority, category, "creationDate", "dueDate", "pipelineID", owner)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING id
   `,
       [
@@ -32,8 +39,9 @@ export async function CreateNewTask(values: z.infer<typeof TaskSchema>) {
         status,
         priority,
         category,
-        new Date().toString(),
+        new Date(),
         dueDate,
+        pipelineId,
         session?.user.id,
       ],
     );
@@ -44,8 +52,8 @@ export async function CreateNewTask(values: z.infer<typeof TaskSchema>) {
       return { error: "Something went wrong." };
     }
 
-    revalidatePath("/workshop/pipelines"); // Update cached posts
-    revalidatePath("/workshop/tasks");
+    revalidatePath("/workshop/pipelines/[slug]", "layout");
+    refresh();
 
     return { success: "Created New Task Successfully!" };
   } catch (error) {

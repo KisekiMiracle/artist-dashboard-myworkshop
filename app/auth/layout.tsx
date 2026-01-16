@@ -4,7 +4,7 @@ import AuthCarousel from "@/components/auth-carrousel";
 import AuthHeader from "@/components/ui/auth-header";
 
 interface Props {
-  children: React.ReactElement;
+  children: React.ReactNode;
 }
 
 export default function AuthLayout({ children }: Props) {

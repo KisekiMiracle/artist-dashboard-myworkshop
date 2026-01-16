@@ -7,9 +7,16 @@ export interface Task {
   status?: "todo" | "in-progress" | "done";
   priority?: "low" | "medium" | "high";
   category?: "category_1" | "category_2";
+  position?: number;
   creationDate?: Date;
   dueDate?: Date;
   updateDate?: Date;
+  tags?: Array<{
+    id: string;
+    name: string;
+    icon: string;
+    color: string;
+  }>;
 }
 
 export interface TaskStore {
@@ -19,14 +26,14 @@ export interface TaskStore {
   updateTasks: (newTask: Array<Task>) => void;
   updateTaskCategory: (
     activeID: number | string,
-    overID: number | string
+    overID: number | string,
   ) => void;
 }
 
 const updateIndividualTask = (
   tasks: Array<Task>,
   activeID: number | string,
-  overID: number | string
+  overID: number | string,
 ) => {
   const over = tasks.find((entry) => entry.id === overID);
   const active = tasks.find((entry) => entry.id === activeID);
@@ -51,3 +58,17 @@ export const useTaskStore = create<TaskStore>((set) => ({
       tasks: updateIndividualTask(state.tasks, activeID, overID),
     })),
 }));
+
+export const useNewCategoryColumnButtonForm = create((set) => ({
+  form: false,
+  showForm: () => set({ form: true }),
+  hideForm: () => set({ form: false }),
+}));
+
+export interface TaskTag {
+  id: string;
+  name: string;
+  icon: string; // store icons as names
+  color: string;
+  usage_count?: number;
+}

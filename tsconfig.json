@@ -5,7 +5,7 @@
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "types": ["@iconify/unplugin/types/react", "./types.d.ts"],
     "allowJs": true,
@@ -15,6 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "skipLibCheck": true,
+    "downlevelIteration": true,
     "paths": {
       "@/*": ["./*"]
     },

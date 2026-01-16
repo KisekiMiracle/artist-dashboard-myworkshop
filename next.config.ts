@@ -22,11 +22,11 @@ const nextConfig: NextConfig = {
         compiler: "react",
         css: "module",
       }),
-      Icons({
-        compiler: "raw",
-        namespace: "iconify-raw",
-        mode: "svg",
-      })
+      // Icons({
+      //   compiler: "raw",
+      //   namespace: "iconify-raw",
+      //   mode: "svg",
+      // })
     );
     return config;
   },

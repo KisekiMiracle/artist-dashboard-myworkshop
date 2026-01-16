@@ -10,7 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useState, useTransition } from "react";
+import { Suspense, useState, useTransition } from "react";
 
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import FormError from "@/components/form-error";
@@ -24,7 +24,7 @@ import { useForm } from "react-hook-form";
 import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-export default function LoginForm() {
+function LoginFormContent() {
   const searchParanms = useSearchParams();
   const urlError =
     searchParanms.get("error") === "OAuthAccountNotLinked"
@@ -178,5 +178,13 @@ export default function LoginForm() {
         </Link>
       </form>
     </Form>
+  );
+}
+
+export default function LoginForm() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginFormContent />
+    </Suspense>
   );
 }

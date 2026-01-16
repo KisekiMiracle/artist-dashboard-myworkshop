@@ -15,10 +15,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-neutral-900 py-6 pr-6 w-dvw h-dvh overflow-y-hidden text-white">
-        <div className="flex w-full h-full">
+      <body className="h-dvh w-dvw overflow-y-hidden bg-neutral-900 py-6 pr-6 text-white">
+        <div className="root flex h-full w-full">
           <Sidemenu />
-          <section className="bg-white rounded-4xl w-full h-full text-neutral-800 transition-all duration-200">
+          <section className="h-full w-full rounded-4xl bg-white text-neutral-800 transition-all duration-200">
             {children}
           </section>
         </div>

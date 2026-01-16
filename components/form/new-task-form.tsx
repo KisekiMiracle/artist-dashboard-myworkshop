@@ -1,15 +1,30 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { CreateNewTask } from "@/actions/tasks/create-new-task";
 import { TaskSchema } from "@/schemas";
+import { usePathname } from "next/navigation";
+import { QueryPipelineCategories } from "@/actions/tasks/query-tasks-categories";
 
 export default function NewTaskForm() {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [isPending, setIsPending] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const pathname = usePathname();
+  const pipelineID = pathname.split("/")[3];
+
+  const [categories, setCategories] = useState<any>([]);
+
+  useEffect(() => {
+    const updateCategories = async () => {
+      const data = await QueryPipelineCategories(pipelineID);
+      setCategories(data as string[]);
+    };
+    updateCategories();
+  }, []);
 
   const form = useRef(null);
 
@@ -29,6 +44,7 @@ export default function NewTaskForm() {
       priority: formData.get("priority") as string,
       category: formData.get("category") as string,
       dueDate: new Date(formData.get("dueDate") as string),
+      pipelineId: pipelineID,
     };
 
     const validatedFields = TaskSchema.safeParse(values);
@@ -54,6 +70,7 @@ export default function NewTaskForm() {
       // Reset form on success
       if (data?.success) {
         (form.current as unknown as HTMLFormElement).reset();
+        window.location.reload();
       }
     } catch (err) {
       console.error("Something went wrong:", err);
@@ -65,7 +82,7 @@ export default function NewTaskForm() {
 
   return (
     <form
-      className="flex flex-col gap-4 w-86"
+      className="flex flex-col gap-4 w-full"
       onSubmit={handleSubmit}
       ref={form}
     >
@@ -168,18 +185,29 @@ export default function NewTaskForm() {
           <label htmlFor="category" className="font-medium text-sm">
             Category
           </label>
-          <input
+          <select
             id="category"
             name="category"
-            type="text"
             className={`border rounded-md px-3 py-2 focus:outline-none focus:ring-1 transition-all duration-200 ${
-              fieldErrors.category
+              fieldErrors.priority
                 ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                 : "border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
             }`}
             disabled={isPending}
-            defaultValue="category_1"
-          />
+            defaultValue="low"
+          >
+            {categories &&
+              categories.map((category: any) => {
+                return (
+                  <option
+                    key={category.category + "_" + Math.random()}
+                    value={category.category}
+                  >
+                    {category.category}
+                  </option>
+                );
+              })}
+          </select>
           {fieldErrors.category && (
             <p className="mt-1 text-red-600 text-xs">{fieldErrors.category}</p>
           )}

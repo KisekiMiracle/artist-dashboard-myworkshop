@@ -18,3 +18,4 @@ lorem ipsum dolor sit amet, consectetur adipiscing elit.
 - [ ] Email Notifications
 - [ ] Email Templates
 - [ ] Automation
+- [ ] Profile and Services Page

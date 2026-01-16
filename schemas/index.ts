@@ -32,10 +32,26 @@ export const TaskSchema = z.object({
   priority: z.string(),
   category: z.string(),
   dueDate: z.date(),
+  pipelineId: z.string(),
 });
 
 export const PipelineSchema = z.object({
   title: z.string().min(1, {
-    message: "Title cannot be empty.",
+    message: "Pipeline Name cannot be empty.",
   }),
+});
+
+export const CategorySchema = z.object({
+  title: z.string().min(1, {
+    message: "Category Name cannot be empty.",
+  }),
+});
+
+export const TagSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, {
+    message: "Tag Name cannot be empty.",
+  }),
+  icon: z.string(),
+  color: z.string(),
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 
 import { BeatLoader } from "react-spinners";
 import FormError from "@/components/form-error";
@@ -9,7 +9,7 @@ import Link from "next/link";
 import { newVerification } from "@/actions/new-verification";
 import { useSearchParams } from "next/navigation";
 
-export default function NewVerification() {
+function NewVerificationContent() {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const searchParams = useSearchParams();
@@ -53,5 +53,13 @@ export default function NewVerification() {
         </Link>
       </div>
     </section>
+  );
+}
+
+export default function NewVerification() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewVerificationContent />
+    </Suspense>
   );
 }

@@ -24,10 +24,14 @@ function ListItem({ task }: ListItemProps) {
     day: "numeric",
   };
 
+  const creationDate = new Date(task.creationDate as Date);
+  const updateDate = new Date(task.updateDate as Date);
+  const dueDate = new Date(task.dueDate as Date);
+
   return (
     <tr className="border-t border-t-neutral-200! text-xs text-neutral-700">
       <td className="font-normal!">{task.title}</td>
-      <td>{task.description}</td>
+      {/* <td>{task.description}</td> */}
       <td>
         <Badge
           variant={
@@ -43,9 +47,13 @@ function ListItem({ task }: ListItemProps) {
         </Badge>
       </td>
       <td>{task.category}</td>
-      <td>{task.creationDate?.toLocaleDateString("en-US", options)}</td>
-      <td>{task.updateDate?.toLocaleDateString("en-US", options)}</td>
-      <td>{task.dueDate?.toLocaleDateString("en-US", options)}</td>
+      <td>{creationDate?.toLocaleDateString("en-US", options)}</td>
+      <td>
+        {!task.updateDate
+          ? "-"
+          : updateDate?.toLocaleDateString("en-US", options)}
+      </td>
+      <td>{dueDate?.toLocaleDateString("en-US", options)}</td>
       <td>
         <button type="button" className="btn btn-xs btn-neutral">
           Edit
@@ -57,13 +65,14 @@ function ListItem({ task }: ListItemProps) {
 
 export default function ListView() {
   const pathname = usePathname();
+  const pipelineID = pathname.split("/")[3];
   const [isLoading, setIsLoading] = useState(true);
   const [rows, setRows] = useState<Record<string, Task[]>>({});
 
   useEffect(() => {
     const updateColumns = async () => {
       setIsLoading(true);
-      const data = await QueryUserTasks();
+      const data = await QueryUserTasks(pipelineID);
       setRows(data as Record<string, Task[]>);
       setIsLoading(false);
     };
@@ -87,11 +96,11 @@ export default function ListView() {
                 <TablerClipboardText width={16} height={16} /> Title
               </div>
             </th>
-            <th>
-              <div className="flex items-center gap-1">
-                <TablerFileDescription width={16} height={16} /> Description
-              </div>
-            </th>
+            {/* <th> */}
+            {/*   <div className="flex items-center gap-1"> */}
+            {/*     <TablerFileDescription width={16} height={16} /> Description */}
+            {/*   </div> */}
+            {/* </th> */}
             <th>
               <div className="flex items-center gap-1">
                 <TablerAtom2Filled width={16} height={16} /> Priority

@@ -12,17 +12,19 @@ interface Props {
 
 export default function ButtonSideMenu({ label, icon, href }: Props) {
   const pathname = usePathname();
+  const isActive = pathname.includes(href) && href !== "/workshop";
 
   return (
     <Link
       href={href}
       className={cn(
-        "relative flex items-center gap-2 px-6 hover:px-8 py-4 border-l-4 border-l-transparent hover:border-l-white hover:[&>span]:w-full text-white transition-all duration-200",
-        pathname === href && "border-l-4 border-l-white pr-8"
+        "relative flex items-center gap-2 px-6 py-4  hover:bg-white  hover:mx-4  hover:rounded-2xl hover:text-neutral-800   text-white transition-all duration-200",
+        (isActive || (pathname === "/workshop" && href === "/workshop")) &&
+          "bg-white text-neutral-800 mx-4 rounded-2xl",
       )}
     >
       {icon}
-      <span className="w-0 overflow-x-hidden text-ellipsis whitespace-nowrap transition-all duration-200">
+      <span className="overflow-x-hidden text-ellipsis whitespace-nowrap transition-all duration-200">
         {label}
       </span>
     </Link>
